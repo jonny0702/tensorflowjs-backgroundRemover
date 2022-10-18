@@ -1,17 +1,13 @@
 import React, {
   useState,
   useEffect,
-  useRef,
-  SetStateAction,
-  Dispatch,
-  MutableRefObject,
+  useRef
 } from "react";
 import * as tf from "@tensorflow/tfjs";
 import * as deeplab from "@tensorflow-models/deeplab";
 import "@tensorflow/tfjs-backend-webgl";
 
 import styles from "./styles/App.module.sass";
-
 
 export const App: React.FC = () => {
   //REFS
@@ -26,10 +22,11 @@ export const App: React.FC = () => {
   const [model, setModel] = useState<React.SetStateAction<any>>();
   const [modelNameSelection, setModelName] = useState<string | null>(null);
   const [loadStatus, setLoadStatus] = useState(true);
-  const [disableButton, setDisableButton] = useState(false);
   const [image, setImage] = useState<React.SetStateAction<string>>();
   const [legend, setLegend] = useState<any>({})
   const [predictionImg , setPredictionImg] =  useState<any>({})
+  const [disableButton, setDisableButton] = useState(true);
+  const [downloadEnable, setDownloadEnable] = useState(true)
   let objectColors: any = {}
  
 
@@ -141,7 +138,16 @@ export const App: React.FC = () => {
     }
     //Display the processed Image data on canvas
     if(imageData) ctx2.current?.putImageData(imageData, 0 , 0);
- 
+    setDownloadEnable(false)
+ }
+
+ const handleDownload = () =>{
+  const a = document.createElement('a');
+  document.body.appendChild(a);
+  a.href = canvas2.current.toDataURL();
+  a.download = 'canvas-image.png'
+  a.click()
+  document.body.removeChild(a);
  }
 
   useEffect(() => {
@@ -167,7 +173,6 @@ export const App: React.FC = () => {
         <button
           id="loadModel"
           onClick={handleLoadModel}
-          disabled={disableButton}
         >
           Load Model
         </button>
@@ -224,6 +229,7 @@ export const App: React.FC = () => {
         <button id='restoreSelectedObjects' onClick={(e)=> removeOrRestoreSelectedObjects(e)}>Restore Selected Objects</button>
       </div>
       <canvas ref={canvas2}></canvas>
+      <button onClick={handleDownload} disabled={downloadEnable}>Download Converted Image</button>
     </div>
   );
 };
